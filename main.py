@@ -17,7 +17,9 @@ from collections import defaultdict
 from tqdm import tqdm
 from util import flatten_query, list2tuple, parse_time, set_global_seed, eval_tuple
 from torchmetrics import SpearmanCorrCoef
-
+import hidet
+from hidet_ext import scatter, prod
+from TimeCounter import TimeCounter
 query_name_dict = {('e', ('r',)): '1p', 
                     ('e', ('r', 'r')): '2p',
                     ('e', ('r', 'r', 'r')): '3p',
@@ -84,6 +86,7 @@ def parse_args(args=None):
     parser.add_argument('--tasks', default='1p.2p.3p.2i.3i.ip.pi.2in.3in.inp.pin.pni.2u.up', type=str, help="tasks connected by dot, refer to the BetaE paper for detailed meaning and structure of each task")
     parser.add_argument('--seed', default=12345, type=int, help="random seed")
     parser.add_argument('-evu', '--evaluate_union', default="DNF", type=str, choices=['DNF', 'DM'], help='the way to evaluate union queries, transform it to disjunctive normal form (DNF) or use the De Morgan\'s laws (DM)')
+    parser.add_argument('--compiler', default='hidet', type=str, choices=['eager', 'hidet', 'inductor'], help='use torch compiler')
 
     return parser.parse_args(args)
 
@@ -495,12 +498,22 @@ def main(args):
     )
     
     model = KGReasoning(args, device, adj_list, query_name_dict, name_answer_dict)
-
+    if args.compiler == 'hidet':
+        model.embed_query = torch.compile(model.embed_query, backend="hidet")
+        model.find_ans = torch.compile(model.find_ans, backend="hidet")
+        # hidet.graph.frontend.torch.dynamo_config.correctness_report()
+        # hidet.graph.frontend.torch.dynamo_config.dump_graph_ir("hidet_graph")
+    elif args.compiler == 'inductor':
+        model.embed_query = torch.compile(model.embed_query)
+        model.find_ans = torch.compile(model.find_ans)
+    print(args.compiler)
     cp_thrshd = None
     if args.do_cp:
         cp_thrshd = get_cp_thrshd(model, valid_hard_answers, valid_easy_answers, args, valid_dataloader, query_name_dict, device)
-    
     evaluate(model, test_hard_answers, test_easy_answers, args, test_dataloader, query_name_dict, device, writer, edges_y, edges_p, cp_thrshd)
+    # for _ in range(10):
+    #     with TimeCounter.profile_time(args.compiler, warmup_interval=4):
+    #         evaluate(model, test_hard_answers, test_easy_answers, args, test_dataloader, query_name_dict, device, writer, edges_y, edges_p, cp_thrshd)
 
 if __name__ == '__main__':
     main(parse_args())

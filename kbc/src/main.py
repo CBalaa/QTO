@@ -12,7 +12,7 @@ import argparse
 from engines import KBCEngine
 
 
-datasets = ['FB15K-237', 'WN18RR', 'aristo-v4',
+datasets = ['FB15k-237', 'WN18RR', 'aristo-v4',
             'UMLS', 'KINSHIP', 'NATIONS',
             'custom_graph',
             'ogbl-biokg', 'ogbl-wikikg2', 'FB15K', 'NELL995']

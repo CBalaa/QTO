@@ -1,0 +1,10 @@
+data/
+__pycache__/
+.vscode/
+measureTime/
+neural_adj/
+results/
+kbc/FB15K/
+kbc/FB15k-237/
+kbc/NELL995/
+save.nsys-rep

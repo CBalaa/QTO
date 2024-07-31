@@ -14,7 +14,7 @@ from tqdm import tqdm
 import os
 import sys
 import json
-sys.path.append('rp')
+sys.path.append('./kbc')
 from src.models import ComplEx
 
 def load_kbc(model_path, device, nentity, nrelation):
