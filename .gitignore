@@ -1,7 +1,6 @@
 data/
 __pycache__/
 .vscode/
-measureTime/
 neural_adj/
 results/
 kbc/FB15K/

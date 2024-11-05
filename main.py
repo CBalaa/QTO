@@ -498,6 +498,7 @@ def main(args):
     )
     
     model = KGReasoning(args, device, adj_list, query_name_dict, name_answer_dict)
+    exit()
     if args.compiler == 'hidet':
         model.embed_query = torch.compile(model.embed_query, backend="hidet")
         model.find_ans = torch.compile(model.find_ans, backend="hidet")

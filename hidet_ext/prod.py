@@ -4,7 +4,7 @@ from hidet.graph.frontend.torch.interpreter import register_function
 
 @register_function(torch.prod)
 def torch_prod(x: hidet.Tensor, dim: int):
-    return hidet.ops.prod(x, dim)
+    return hidet.ops.prod(x, dim) 
 
 def test_prod():
     def func(x, dim):
